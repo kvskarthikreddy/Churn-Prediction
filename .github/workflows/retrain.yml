@@ -27,7 +27,7 @@ jobs:
       - name: 🔄 Retrain Model
         env:
           DB_URL: ${{ secrets.DB_URL }}  # ✅ PostgreSQL connection
-        run: python retrain_model.py  # ✅ Runs your model retraining script
+        run: python backend/retrain_model.py  # ✅ Runs your model retraining script
 
       - name: 💾 Save Model
         run: |
