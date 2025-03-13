@@ -1,46 +1,55 @@
-name: Retrain ML Model
+name: Retrain Model and Deploy
 
 on:
+  push:
+    branches:
+      - main  # ✅ Runs automatically on push to main branch
   schedule:
-    - cron: "0 2 * * *"  # Runs daily at 2 AM UTC
-  workflow_dispatch:  # Allows manual trigger
+    - cron: "0 2 * * *"  # ✅ Runs every day at 2 AM UTC
+  workflow_dispatch:  # ✅ Allows manual trigger from GitHub Actions
 
 jobs:
   retrain:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      - name: 🚀 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set Up Python
-        uses: actions/setup-python@v3
+      - name: 📦 Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: '3.9'
 
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
+      - name: 📌 Install Dependencies
+        run: pip install -r requirements.txt
 
-      - name: Run Model Retraining
+      - name: 🔄 Retrain Model
         env:
-          DB_URL: ${{ secrets.DB_URL }}
-        run: python retrain_model.py
+          DB_URL: ${{ secrets.DB_URL }}  # ✅ PostgreSQL connection
+        run: python retrain_model.py  # ✅ Runs your model retraining script
 
-      - name: Save New Model to GitHub
+      - name: 💾 Save Model
         run: |
-          git config --global user.name "GitHub Actions"
+          mkdir -p models
+          mv churn_model.pkl models/
+
+      - name: 📤 Commit & Push Updated Model
+        run: |
+          git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add churn_model.pkl
-          git commit -m "Updated ML Model (Automated Retraining)" || echo "No changes to commit"
-          git push origin main || echo "No changes to push"
+          git add models/churn_model.pkl
+          git commit -m "🔄 Auto-retrained model update"
+          git push origin main
 
-      - name: Deploy Updated Model to Render
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+  deploy:
+    needs: retrain
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔑 Deploy to Render
         run: |
-          curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-          -H "Authorization: Bearer $RENDER_API_KEY" \
+          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+          -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
           -H "Content-Type: application/json" \
-          --data '{}'
+          --data '{"clearCache": false}'
+
