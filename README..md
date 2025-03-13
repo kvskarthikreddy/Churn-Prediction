@@ -1,5 +1,5 @@
 ## 🚀 Live Demo
-[Click Here to Visit the Web App](https://your-netlify-app.netlify.app)
+[Click Here to Visit the Web App](https://customerchurn82.netlify.app/)
 
 ## 📂 Project Overview
 This is a **Customer Churn Prediction** app where users can input customer details 
