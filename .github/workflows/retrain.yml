@@ -21,7 +21,8 @@ jobs:
           python-version: '3.9'
 
       - name: 📌 Install Dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r backend/requirements.txt  # ✅ Corrected path
+
 
       - name: 🔄 Retrain Model
         env:
