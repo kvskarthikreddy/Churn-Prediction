@@ -2,39 +2,39 @@ name: Retrain Model
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Runs Daily at 2 AM UTC
-  workflow_dispatch:  # Allows manual triggering
+    - cron: '0 2 * * *'  # Runs every day at 2 AM
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
   retrain:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v3
+      - name: 📌 Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: 🏗️ Set Up Python
-        uses: actions/setup-python@v3
+      - name: 📌 Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
       - name: 📌 Install Dependencies
-        run: pip install -r backend/requirements.txt
+        run: |
+          pip install -r backend/requirements.txt
 
-      - name: 🔄 Retrain Model
-        run: python backend/retrain_model.py
-
-      - name: 📂 Create Models Folder
+      - name: 📌 Ensure Models Folder Exists
         run: mkdir -p backend/models
 
-      - name: 🚀 Push Updated Model to Repository
+      - name: 🔄 Run Retraining Script
+        run: python backend/retrain_model.py
+
+      - name: 📌 Commit Updated Model
         run: |
           git config --global user.email "your-email@example.com"
           git config --global user.name "GitHub Actions"
-          git add backend/models/churn_model.pkl
-          git commit -m "🚀 Updated Model with New Data"
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git add backend/models/
+          git commit -m "Updated trained model" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"
+
 
 
