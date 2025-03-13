@@ -3,7 +3,7 @@ async function getPrediction() {
     let monthly_charges = document.getElementById("monthly_charges").value;
     let total_charges = document.getElementById("total_charges").value;
 
-    let response = await fetch("http://127.0.0.1:8000/predict/", {  // 🔹 Updated Render URL
+    let response = await fetch("https://customerchurn-94x4.onrender.com", {  // 🔹 Updated Render URL
         method: "POST",
         headers: {
             "Content-Type": "application/json"
