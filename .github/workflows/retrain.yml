@@ -1,11 +1,9 @@
-name: Retrain and Deploy ML Model
+name: Retrain ML Model
 
 on:
-  push:
-    branches:
-      - main  # Trigger on updates to the main branch
   schedule:
-    - cron: '0 2 * * *'  # Runs daily at 2 AM UTC
+    - cron: "0 2 * * *"  # Runs daily at 2 AM UTC
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
   retrain:
@@ -15,47 +13,34 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set Up Python
+        uses: actions/setup-python@v3
         with:
-          python-version: "3.12"
+          python-version: "3.9"
 
       - name: Install Dependencies
         run: |
-          pip install pandas scikit-learn joblib sqlalchemy psycopg2
+          pip install -r requirements.txt
 
-      - name: Fetch Data from PostgreSQL
+      - name: Run Model Retraining
         env:
           DB_URL: ${{ secrets.DB_URL }}
+        run: python retrain_model.py
+
+      - name: Save New Model to GitHub
         run: |
-          python fetch_data.py
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add churn_model.pkl
+          git commit -m "Updated ML Model (Automated Retraining)" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"
 
-      - name: Retrain Model
+      - name: Deploy Updated Model to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          python retrain_model.py
-
-      - name: Upload Model as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: churn_model
-          path: churn_model.pkl
-
-  deploy:
-    needs: retrain
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Download Model
-        uses: actions/download-artifact@v3
-        with:
-          name: churn_model
-
-      - name: Deploy to Render
-        run: |
-          curl -X POST https://api.render.com/deploy \
-               -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-               -H "Content-Type: application/json" \
-               -d '{"serviceId": "${{ secrets.RENDER_SERVICE_ID }}"}'
+          curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+          -H "Authorization: Bearer $RENDER_API_KEY" \
+          -H "Content-Type: application/json" \
+          --data '{}'
