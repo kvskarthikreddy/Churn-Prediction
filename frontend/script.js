@@ -3,18 +3,35 @@ async function getPrediction() {
     let monthly_charges = document.getElementById("monthly_charges").value;
     let total_charges = document.getElementById("total_charges").value;
 
-    let response = await fetch("https://customerchurn-94x4.onrender.com", {  // 🔹 Updated Render URL
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            tenure: parseFloat(tenure),
-            monthly_charges: parseFloat(monthly_charges),
-            total_charges: parseFloat(total_charges)
-        })
-    });
+    // ✅ Prevent empty inputs
+    if (!tenure || !monthly_charges || !total_charges) {
+        alert("Please enter all values before predicting.");
+        return;
+    }
 
-    let result = await response.json();
-    document.getElementById("prediction-result").innerText = "Prediction: " + result.prediction;
+    try {
+        let response = await fetch("http://127.0.0.1:8000/predict/", {  // ✅ Local Backend URL
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                tenure: parseFloat(tenure),
+                monthly_charges: parseFloat(monthly_charges),
+                total_charges: parseFloat(total_charges)
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        let result = await response.json();
+        console.log("Response from backend:", result);  // ✅ Debugging in Console
+        document.getElementById("prediction-result").innerText = "Prediction: " + (result.prediction || "Error in prediction");
+
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("prediction-result").innerText = "Error getting prediction.";
+    }
 }
