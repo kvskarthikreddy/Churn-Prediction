@@ -1,0 +1,61 @@
+name: Retrain and Deploy ML Model
+
+on:
+  push:
+    branches:
+      - main  # Trigger on updates to the main branch
+  schedule:
+    - cron: '0 2 * * *'  # Runs daily at 2 AM UTC
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          pip install pandas scikit-learn joblib sqlalchemy psycopg2
+
+      - name: Fetch Data from PostgreSQL
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+        run: |
+          python fetch_data.py
+
+      - name: Retrain Model
+        run: |
+          python retrain_model.py
+
+      - name: Upload Model as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: churn_model
+          path: churn_model.pkl
+
+  deploy:
+    needs: retrain
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Download Model
+        uses: actions/download-artifact@v3
+        with:
+          name: churn_model
+
+      - name: Deploy to Render
+        run: |
+          curl -X POST https://api.render.com/deploy \
+               -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+               -H "Content-Type: application/json" \
+               -d '{"serviceId": "${{ secrets.RENDER_SERVICE_ID }}"}'
