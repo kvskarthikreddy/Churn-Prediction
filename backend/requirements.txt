@@ -6,4 +6,5 @@ joblib
 scikit-learn
 sqlalchemy
 psycopg2-binary
+schedule
 
