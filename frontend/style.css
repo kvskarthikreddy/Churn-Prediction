@@ -1,0 +1,47 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    margin-top: 50px;
+    background-image: url('background.jpg'); /* Ensure image is in frontend folder */
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    color: black;  /* Changed text color to black */
+}
+
+.container {
+    width: 350px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.5);  /* Transparent white */
+    border-radius: 10px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+input {
+    width: 90%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.8);  /* Slightly transparent input fields */
+    color: black; /* Text inside input fields is black */
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+h1, h2, p {
+    color: black; /* Ensure all headings and paragraphs are visible */
+}

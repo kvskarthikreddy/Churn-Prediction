@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Prediction</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Customer Churn Prediction</h1>
+        <p>Enter customer details:</p>
+
+        <input type="number" id="tenure" placeholder="Tenure (Months)">
+        <input type="number" id="monthly_charges" placeholder="Monthly Charges">
+        <input type="number" id="total_charges" placeholder="Total Charges">
+
+        <button onclick="getPrediction()">Predict</button>
+        <h2 id="prediction-result">Prediction: </h2>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
