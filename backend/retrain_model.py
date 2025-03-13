@@ -50,7 +50,7 @@ def retrain_model():
     model.fit(X_train, y_train)
 
     # 🔹 Save Updated Model
-    joblib.dump(model, "backend/churn_model.pkl")  # ✅ Save inside `backend`
+    joblib.dump(model, "churn_model.pkl")  # ✅ Save inside `backend`
     print("✅ Model Retrained and Saved!")
 
 # ✅ Run Retraining
